@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 // Import Routes
 var appRoutes = require('./routes/app');
 var userRoutes = require('./routes/user');
+var loginRoutes = require('./routes/login');
 
 // Connection to data base (MongoDb)
 mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB',
@@ -26,6 +27,7 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB',
 
 // Routes
 app.use('/user', userRoutes);
+app.use('/login', loginRoutes);
 app.use('/', appRoutes);
 
 // Listen requests
