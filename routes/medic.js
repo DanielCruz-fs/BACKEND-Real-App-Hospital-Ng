@@ -1,97 +1,95 @@
 var express = require('express');
-var bcrypt = require('bcryptjs');
 var mdAuth = require('../middlewares/authetication');
 var app = express();
-var User = require('../models/user');
+var Medic = require('../models/medic');
 // ==========================
-/** Obtain all users */
+/** Obtain all medics */
 // ==========================
 app.get('/', (request, response, next) => {
-  User.find({}, 'name email img role').exec((err, users) => {
+  Medic.find({}, (err, medics) => {
     if (err) {
       return response.status(500).json({
         ok: false,
-        message : 'Error loading users',
+        message : 'Error loading medics',
         errors: err
       });
     }
 
     response.status(200).json({
       ok: true,
-      users: users
+      medics: medics
     });
   });
 });
 // ============================
-/** Update user */
+/** Update medic */
 // ============================
 app.put('/:id', mdAuth.verifyToken, (req, res) => {
   var id = req.params.id;
   var body = req.body;
 
-  User.findById(id, (err, user) => {
+  Medic.findById(id, (err, medic) => {
     if (err) {
       return res.status(400).json({
         ok: false,
-        message : 'Error finding user',
+        message : 'Error finding medic',
         errors: err
       });
     }
 
-    if (!user) {
+    if (!medic) {
       return res.status(400).json({
         ok: false,
-        message : 'User with id: ' + id + 'no longer exists',
-        errors: { message: 'There is no user' }
+        message : 'Medic with id: ' + id + 'no longer exists',
+        errors: { message: 'There is no medic' }
       });
     }
 
-    user.name = body.name;
-    user.email = body.email;
-    user.role = body.role;
+    medic.name = body.name;
+    //medic.img = body.img;
+    medic.user = req.user._id;
+    medic.hospital = body.hospital;
 
-    user.save((err, userUpdated) => {
+    medic.save((err, medicUpdated) => {
       if (err) {
         return res.status(400).json({
           ok: false,
-          message : 'Error in updating user',
+          message : 'Error in updating medic',
           errors: err
         });
       }
-      userUpdated.password = 'XD';
 
       res.status(200).json({
         ok: true,
-        user: userUpdated
+        medic: medicUpdated
       });
     });
 
   });
 });
 // ============================
-/** Create new user */
+/** Create new medic */
 // ============================
 app.post('/', mdAuth.verifyToken, (req, res) => {
   var body = req.body;
 
-  var user = new User({
+  var medic = new Medic({
     name: body.name,
-    email: body.email,
-    password: bcrypt.hashSync(body.password, 10),
-    img: body.img,
-    role: body.role
-  })
-  user.save((err, userCreated) => {
+    //img: body.img,
+    user: req.user._id,
+    hospital: body.hospital
+  });
+  medic.save((err, medicCreated) => {
     if (err) {
       return res.status(400).json({
         ok: false,
-        message : 'Error creating user',
+        message : 'Error creating medic',
         errors: err
       });
     }
     res.status(201).json({
       ok: true,
-      user: userCreated,
+      medic: medicCreated,
       userToken: req.user
     });
   });
@@ -102,24 +100,24 @@ app.post('/', mdAuth.verifyToken, (req, res) => {
 // ============================
 app.delete('/:id', mdAuth.verifyToken, (req, res) => {
   var id = req.params.id;
-  User.findByIdAndRemove(id, (err, userRemoved) => {
+  Medic.findByIdAndRemove(id, (err, medicRemoved) => {
     if (err) {
       return res.status(400).json({
         ok: false,
-        message : 'Error removing user',
+        message : 'Error removing medic',
         errors: err
       });
     }
-    if (!userRemoved) {
+    if (!medicRemoved) {
       return res.status(400).json({
         ok: false,
-        message : 'User no longer exists',
+        message : 'Medic no longer exists',
         errors: { message: 'No reference for the current id' }
       });
     }
     res.status(201).json({
       ok: true,
-      user: userRemoved
+      medic: medicRemoved
     });
   });
 });

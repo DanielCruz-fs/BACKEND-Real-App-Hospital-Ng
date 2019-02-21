@@ -1,125 +1,120 @@
 var express = require('express');
-var bcrypt = require('bcryptjs');
 var mdAuth = require('../middlewares/authetication');
 var app = express();
-var User = require('../models/user');
+var Hospital = require('../models/hospital');
 // ==========================
-/** Obtain all users */
+/** Obtain all hospitals */
 // ==========================
 app.get('/', (request, response, next) => {
-  User.find({}, 'name email img role').exec((err, users) => {
+  Hospital.find({}, (err, hospitals) => {
     if (err) {
       return response.status(500).json({
         ok: false,
-        message : 'Error loading users',
+        message : 'Error loading hospitals',
         errors: err
       });
     }
 
     response.status(200).json({
       ok: true,
-      users: users
+      hospitals: hospitals
     });
   });
 });
 // ============================
-/** Update user */
+/** Update hospital */
 // ============================
 app.put('/:id', mdAuth.verifyToken, (req, res) => {
   var id = req.params.id;
   var body = req.body;
 
-  User.findById(id, (err, user) => {
+  Hospital.findById(id, (err, hospital) => {
     if (err) {
       return res.status(400).json({
         ok: false,
-        message : 'Error finding user',
+        message : 'Error finding hospital',
         errors: err
       });
     }
 
-    if (!user) {
+    if (!hospital) {
       return res.status(400).json({
         ok: false,
-        message : 'User with id: ' + id + 'no longer exists',
-        errors: { message: 'There is no user' }
+        message : 'Hospital with id: ' + id + 'does not exist',
+        errors: { message: 'There is no hospital' }
       });
     }
 
-    user.name = body.name;
-    user.email = body.email;
-    user.role = body.role;
+    hospital.name = body.name;
+    //hospital.img = body.img;
+    hospital.user = req.user._id;
 
-    user.save((err, userUpdated) => {
+    hospital.save((err, hospitalUpdated) => {
       if (err) {
         return res.status(400).json({
           ok: false,
-          message : 'Error in updating user',
+          message : 'Error in updating hospital',
           errors: err
         });
       }
-      userUpdated.password = 'XD';
-
       res.status(200).json({
         ok: true,
-        user: userUpdated
+        hospital: hospitalUpdated
       });
     });
 
   });
 });
 // ============================
-/** Create new user */
+/** Create new hospital */
 // ============================
 app.post('/', mdAuth.verifyToken, (req, res) => {
   var body = req.body;
 
-  var user = new User({
+  var hospital = new Hospital({
     name: body.name,
-    email: body.email,
-    password: bcrypt.hashSync(body.password, 10),
-    img: body.img,
-    role: body.role
+    //img: body.img,
+    user: req.user._id
   })
-  user.save((err, userCreated) => {
+  hospital.save((err, hospitalCreated) => {
     if (err) {
       return res.status(400).json({
         ok: false,
-        message : 'Error creating user',
+        message : 'Error creating hospital',
         errors: err
       });
     }
     res.status(201).json({
       ok: true,
-      user: userCreated,
+      hospital: hospitalCreated,
       userToken: req.user
     });
   });
   
 });
 // ============================
-/** Delete user by Id */
+/** Delete hospital by Id */
 // ============================
 app.delete('/:id', mdAuth.verifyToken, (req, res) => {
   var id = req.params.id;
-  User.findByIdAndRemove(id, (err, userRemoved) => {
+  Hospital.findByIdAndRemove(id, (err, hospitalRemoved) => {
     if (err) {
       return res.status(400).json({
         ok: false,
-        message : 'Error removing user',
+        message : 'Error removing hospital',
         errors: err
       });
     }
-    if (!userRemoved) {
+    if (!hospitalRemoved) {
       return res.status(400).json({
         ok: false,
-        message : 'User no longer exists',
+        message : 'Hospital no longer exists',
         errors: { message: 'No reference for the current id' }
       });
     }
     res.status(201).json({
       ok: true,
-      user: userRemoved
+      hospital: hospitalRemoved
     });
   });
 });
