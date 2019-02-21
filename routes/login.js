@@ -1,5 +1,6 @@
 var express = require('express');
 var bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
 var app = express();
 var User = require('../models/user');
 
@@ -29,9 +30,13 @@ app.post('/', (req, res) => {
       });
     }
     /**Create token */
+    userDB.password = 'XD';
+    var token = jwt.sign( { usuario: userDB }, '@this-@is-@a-@seed', { expiresIn: 14400 });
+    /** */
     res.status(200).json({
       ok: true,
       user: userDB,
+      token: token,
       id: userDB._id
     });
   });
