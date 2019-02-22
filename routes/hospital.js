@@ -5,20 +5,31 @@ var Hospital = require('../models/hospital');
 // ==========================
 /** Obtain all hospitals */
 // ==========================
-app.get('/', (request, response, next) => {
-  Hospital.find({}, (err, hospitals) => {
+app.get('/', (req, res, next) => {
+  
+  var fromDataPagination = req.query.from || 0;
+  fromDataPagination = Number(fromDataPagination);
+
+  Hospital.find({}).populate('user', 'name email')
+                   .skip(fromDataPagination)
+                   .limit(5)
+                   .exec((err, hospitals) => {
     if (err) {
-      return response.status(500).json({
+      return res.status(500).json({
         ok: false,
         message : 'Error loading hospitals',
         errors: err
       });
     }
 
-    response.status(200).json({
-      ok: true,
-      hospitals: hospitals
+    Hospital.count({}, (err, count) => {
+      res.status(200).json({
+        ok: true,
+        hospitals: hospitals,
+        total: count
+      });
     });
+
   });
 });
 // ============================

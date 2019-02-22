@@ -5,20 +5,32 @@ var Medic = require('../models/medic');
 // ==========================
 /** Obtain all medics */
 // ==========================
-app.get('/', (request, response, next) => {
-  Medic.find({}, (err, medics) => {
+app.get('/', (req, res, next) => {
+
+  var fromDataPagination = req.query.from || 0;
+  fromDataPagination = Number(fromDataPagination);
+
+  Medic.find({}).populate('user', 'name email')
+                .populate('hospital')
+                .skip(fromDataPagination)
+                .limit(5)
+                .exec((err, medics) => {
     if (err) {
-      return response.status(500).json({
+      return res.status(500).json({
         ok: false,
         message : 'Error loading medics',
         errors: err
       });
     }
 
-    response.status(200).json({
-      ok: true,
-      medics: medics
+    Medic.count({}, (err, count) => {
+      res.status(200).json({
+        ok: true,
+        medics: medics,
+        total: count
+      });
     });
+
   });
 });
 // ============================

@@ -6,19 +6,27 @@ var User = require('../models/user');
 // ==========================
 /** Obtain all users */
 // ==========================
-app.get('/', (request, response, next) => {
-  User.find({}, 'name email img role').exec((err, users) => {
+app.get('/', (req, res, next) => {
+  
+  var fromDataPagination = req.query.from || 0;
+  fromDataPagination = Number(fromDataPagination);
+
+  User.find({}, 'name email img role').skip(fromDataPagination)
+                                      .limit(5)
+                                      .exec((err, users) => {
     if (err) {
-      return response.status(500).json({
+      return res.status(500).json({
         ok: false,
         message : 'Error loading users',
         errors: err
       });
     }
-
-    response.status(200).json({
-      ok: true,
-      users: users
+    User.count({}, (err, count) => {
+      res.status(200).json({
+        ok: true,
+        users: users,
+        total: count
+      });
     });
   });
 });
