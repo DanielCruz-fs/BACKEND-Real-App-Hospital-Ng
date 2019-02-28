@@ -18,6 +18,8 @@ var userRoutes = require('./routes/user');
 var hospitalRoutes = require('./routes/hospital');
 var medicRoutes = require('./routes/medic');
 var searchRoutes = require('./routes/search');
+var uploadRoutes = require('./routes/upload');
+var imagesRoutes = require('./routes/images');
 var loginRoutes = require('./routes/login');
 
 // Connection to data base (MongoDb)
@@ -33,6 +35,8 @@ app.use('/user', userRoutes);
 app.use('/hospital', hospitalRoutes);
 app.use('/medic', medicRoutes);
 app.use('/search', searchRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/img', imagesRoutes);
 app.use('/login', loginRoutes);
 app.use('/', appRoutes);
 
