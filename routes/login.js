@@ -40,11 +40,60 @@ app.post('/google', async (req, res, next) => {
       message: 'Invalid Token'
     });
   });
+  // Save user to DB MOngo
+  User.findOne( {email: googleUser.email} , (err, userDB) => {
+    if (err) {
+      return res.status(500).json({
+        ok: false,
+        message : 'Error finding user by email',
+        errors: err
+      });
+    }
+    if (userDB) {
+      if (userDB.google === false) {
+        return res.status(400).json({
+          ok: false,
+          message : 'Use normal authentication'
+        });
+      } else {
+        /**Create token */
+        var token = jwt.sign( { usuario: userDB }, '@this-@is-@a-@seed', { expiresIn: 14400 });
+        /** */
+        res.status(200).json({
+          ok: true,
+          user: userDB,
+          token: token,
+          id: userDB._id
+        });
+      }
+    } else {
+      /**User does not exist, must create */
+      var user = new User();
+      user.name = googleUser.name;
+      user.email = googleUser.email;
+      user.img = googleUser.img;
+      user.google = true;
+      user.password = 'XD';
+      
+      user.save((err, userDB) => {
+        /**Create token */
+        var token = jwt.sign( { usuario: userDB }, '@this-@is-@a-@seed', { expiresIn: 14400 });
+        /** */
+        res.status(200).json({
+          ok: true,
+          user: userDB,
+          token: token,
+          id: userDB._id
+        });
+      });
 
-  res.status(200).json({
-    ok: true,
-    googleUser : googleUser
+    }
   });
+
+  // res.status(200).json({
+  //   ok: true,
+  //   googleUser : googleUser
+  // });
 });
 // ================================
 // Common Authentication

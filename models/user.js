@@ -12,6 +12,7 @@ var userSchema = new Schema({
   password: { type: String, required: [true, 'Password is required'] },
   img: { type: String, required: false },
   role: { type: String, required: true, default: 'USER_ROLE', enum: rolesAllowed },
+  google: { type: Boolean, dafault: false }
 });
 userSchema.plugin(uniqueValidator, { message: 'The Email must be unique' });
 module.exports = mongoose.model('User', userSchema);
