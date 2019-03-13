@@ -11,7 +11,7 @@ app.get('/', (req, res, next) => {
   var fromDataPagination = req.query.from || 0;
   fromDataPagination = Number(fromDataPagination);
 
-  User.find({}, 'name email img role').skip(fromDataPagination)
+  User.find({}, 'name email img role google').skip(fromDataPagination)
                                       .limit(5)
                                       .exec((err, users) => {
     if (err) {
@@ -79,7 +79,7 @@ app.put('/:id', mdAuth.verifyToken, (req, res) => {
 // ============================
 /** Create new user */
 // ============================
-app.post('/', mdAuth.verifyToken, (req, res) => {
+app.post('/', (req, res) => {
   var body = req.body;
 
   var user = new User({
