@@ -89,7 +89,7 @@ var searchMedics = (search, regEx) => {
 /**Promise for async searching in users (more than one field) collection... */
 var searchUsers = (search, regEx) => {
   return new Promise((resolve, reject) => {
-    User.find({}, 'name email role').or([{ name: regEx }, { email: regEx }]).exec((err, users) => {
+    User.find({}, 'name email role img').or([{ name: regEx }, { email: regEx }]).exec((err, users) => {
       if (err) {
         reject('Error searching users', err);
       } else {
