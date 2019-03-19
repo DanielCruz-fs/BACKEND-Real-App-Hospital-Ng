@@ -3,6 +3,7 @@ var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var app = express();
 var User = require('../models/user');
+var mdAuth = require('../middlewares/authetication');
 
 // Google verification TOKEN
 var CLIENT_ID = '761908812877-5muo95srnpdi8djjtla8940a349eo24f.apps.googleusercontent.com';
@@ -133,6 +134,17 @@ app.post('/', (req, res) => {
       token: token,
       id: userDB._id
     });
+  });
+});
+// ================================
+// Renew Token implementation
+// ================================
+app.get('/renewtoken', mdAuth.verifyToken, (req, res) => {
+
+  var token = jwt.sign( { usuario: req.user }, '@this-@is-@a-@seed', { expiresIn: 14400 });
+  res.status(200).json({
+    ok: true,
+    token: token
   });
 });
 module.exports = app;
