@@ -6,7 +6,7 @@ var User = require('../models/user');
 // ==========================
 /** Obtain all users */
 // ==========================
-app.get('/', (req, res, next) => {
+app.get('/', mdAuth.verifyToken, (req, res, next) => {
   
   var fromDataPagination = req.query.from || 0;
   fromDataPagination = Number(fromDataPagination);

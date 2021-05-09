@@ -4,11 +4,17 @@ var jwt = require('jsonwebtoken');
 var app = express();
 var User = require('../models/user');
 var mdAuth = require('../middlewares/authetication');
+var fs = require('fs');
 
 // Google verification TOKEN
 var CLIENT_ID = '761908812877-5muo95srnpdi8djjtla8940a349eo24f.apps.googleusercontent.com';
 const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
+
+// ================================
+// RSA Private key
+//=================================
+var privateKey = fs.readFileSync('./private.key', 'utf-8');
 
 // ================================
 // Google Authentication
@@ -125,8 +131,15 @@ app.post('/', (req, res) => {
       });
     }
     /**Create token */
-    userDB.password = 'XD';
-    var token = jwt.sign( { usuario: userDB }, '@this-@is-@a-@seed', { expiresIn: 14400 });
+    // For not returning the hash password
+    // userDB.password = 'XD'; 
+
+    // HS256
+    // var token = jwt.sign( { usuario: userDB }, '@this-@is-@a-@seed', { expiresIn: 14400 });
+
+    // RS256
+    var token = jwt.sign( { usuario: userDB }, privateKey, { expiresIn: 14400, algorithm: 'RS256' });
+
     /** */
     res.status(200).json({
       ok: true,
